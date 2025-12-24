@@ -27,15 +27,14 @@ const App: React.FC = () => {
       setData(result);
     } catch (err: any) {
       console.error("Search failed:", err);
-      // 显示具体的错误信息，帮助用户排查
-      const errorMessage = err.message || JSON.stringify(err) || "未知错误";
+      // 简单的错误提示
+      const errorMessage = err.message || "请求失败，请检查网络或 API Key 设置";
       setError(errorMessage);
     } finally {
       setIsLoading(false);
     }
   };
 
-  // 分类逻辑：将未来的比赛分为“推荐”和“其他”
   const categorizedMatches = useMemo(() => {
     if (!data || !prefs) return { recommended: [], others: [] };
     
@@ -67,14 +66,6 @@ const App: React.FC = () => {
 
     return { recommended, others };
   }, [data, prefs, currentTime]);
-
-  // Debug check for API Key presence (safe check)
-  const isViteKeyPresent = (() => {
-    try {
-      // @ts-ignore
-      return !!(import.meta.env && import.meta.env.VITE_API_KEY);
-    } catch { return false; }
-  })();
 
   return (
     <div className="min-h-screen pb-12">
@@ -154,36 +145,9 @@ const App: React.FC = () => {
             <div className="bg-red-50 border border-red-100 text-red-600 p-4 rounded-xl flex flex-col gap-2 shadow-sm animate-fade-in">
               <div className="flex items-center gap-3 font-bold text-lg">
                 <i className="fas fa-exclamation-triangle"></i>
-                <span>配置错误</span>
+                <span>出错啦</span>
               </div>
               <p className="text-sm opacity-90 break-all pl-8">{error}</p>
-              
-              {(error.includes("API Key") || error.includes("VITE_API_KEY")) && (
-                <div className="mt-2 pl-8 text-xs text-slate-600 bg-red-100/50 p-2 rounded">
-                  <p className="font-bold mb-1">如何解决：</p>
-                  <ol className="list-decimal pl-4 space-y-1">
-                    <li className="mb-1">
-                      <a 
-                        href="https://aistudio.google.com/app/apikey" 
-                        target="_blank" 
-                        rel="noopener noreferrer"
-                        className="text-blue-600 hover:text-blue-800 underline font-semibold"
-                      >
-                        获取免费 Gemini API Key
-                      </a>
-                    </li>
-                    <li>在 Vercel 控制台: Settings &rarr; Environment Variables</li>
-                    <li>Key: <code className="bg-white px-1 rounded border font-bold text-red-600">VITE_API_KEY</code> <span className="text-red-500">(注意：必须加 VITE_ 前缀)</span></li>
-                    <li>Value: 粘贴您的密钥</li>
-                    <li>保存后，去 Deployments 点击 <strong>Redeploy</strong> (重新部署)</li>
-                  </ol>
-                  <div className="mt-3 pt-2 border-t border-red-200">
-                     <p className="font-mono text-[10px] text-slate-500">
-                       Debug Info: Key Present? {isViteKeyPresent ? "YES (Loaded)" : "NO (Missing)"}
-                     </p>
-                  </div>
-                </div>
-              )}
             </div>
           )}
 

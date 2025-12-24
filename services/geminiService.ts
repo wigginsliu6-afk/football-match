@@ -3,58 +3,14 @@ import { GoogleGenAI } from "@google/genai";
 import { Match, SearchResult } from "../types";
 
 export const fetchMatchesWithGemini = async (teams: string[]): Promise<SearchResult> => {
-  // --- Robust API Key Retrieval ---
-  let apiKey = "";
-
-  // 1. Try retrieving from Vite's import.meta.env (Standard for Vite apps)
-  try {
-    // @ts-ignore
-    if (typeof import.meta !== "undefined" && import.meta.env) {
-      // @ts-ignore
-      apiKey = import.meta.env.VITE_API_KEY || import.meta.env.API_KEY || "";
-    }
-  } catch (e) {
-    console.warn("Error reading import.meta.env", e);
-  }
-
-  // 2. Try retrieving from global process.env (Node.js or polyfilled environments)
-  if (!apiKey) {
-    try {
-      // @ts-ignore
-      if (typeof process !== "undefined" && process.env) {
-        // @ts-ignore
-        apiKey = process.env.API_KEY || process.env.VITE_API_KEY;
-      } else if (typeof window !== "undefined") {
-        // @ts-ignore
-        apiKey = window.process?.env?.API_KEY || window.process?.env?.VITE_API_KEY;
-      }
-    } catch (e) {
-      console.warn("Error reading process.env", e);
-    }
-  }
-
-  // 3. Polyfill process.env.API_KEY for SDK compliance (if SDK checks it internally or for consistency)
-  try {
-    // @ts-ignore
-    if (typeof process === "undefined") {
-      // @ts-ignore
-      window.process = { env: { API_KEY: apiKey } };
-    } else {
-      // @ts-ignore
-      if (!process.env) { process.env = {}; }
-      // @ts-ignore
-      process.env.API_KEY = apiKey;
-    }
-  } catch (e) {
-    // Ignore polyfill errors
-  }
+  // 回退：直接使用 process.env.API_KEY
+  // index.tsx 中的 polyfill 会负责将 VITE_API_KEY 注入到这里
+  const apiKey = process.env.API_KEY;
 
   if (!apiKey) {
-    // 抛出带有特定前缀的错误，以便前端捕获并显示帮助指引
-    throw new Error("[Config Error] 未检测到 API Key。请在 Vercel 环境变量中设置 'VITE_API_KEY'。");
+    throw new Error("API Key 未找到。请检查环境变量设置。");
   }
 
-  // Use the retrieved apiKey
   const ai = new GoogleGenAI({ apiKey: apiKey });
   const teamsStr = teams.join(", ");
   
@@ -121,7 +77,6 @@ export const fetchMatchesWithGemini = async (teams: string[]): Promise<SearchRes
         });
       } catch (e) {
         console.error("JSON parsing failed", e);
-        // 不抛出错误，而是返回解析失败前的文本，让用户至少能看到文字回复
       }
     }
 
@@ -132,7 +87,6 @@ export const fetchMatchesWithGemini = async (teams: string[]): Promise<SearchRes
     };
   } catch (error: any) {
     console.error("Gemini API Error Full Details:", error);
-    // 抛出更具体的错误信息给 UI 层
     throw error;
   }
 };
