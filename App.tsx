@@ -68,6 +68,14 @@ const App: React.FC = () => {
     return { recommended, others };
   }, [data, prefs, currentTime]);
 
+  // Debug check for API Key presence (safe check)
+  const isViteKeyPresent = (() => {
+    try {
+      // @ts-ignore
+      return !!(import.meta.env && import.meta.env.VITE_API_KEY);
+    } catch { return false; }
+  })();
+
   return (
     <div className="min-h-screen pb-12">
       {/* Header with Pitch Theme and Classic FontAwesome Logo */}
@@ -169,6 +177,11 @@ const App: React.FC = () => {
                     <li>Value: 粘贴您的密钥</li>
                     <li>保存后，去 Deployments 点击 <strong>Redeploy</strong> (重新部署)</li>
                   </ol>
+                  <div className="mt-3 pt-2 border-t border-red-200">
+                     <p className="font-mono text-[10px] text-slate-500">
+                       Debug Info: Key Present? {isViteKeyPresent ? "YES (Loaded)" : "NO (Missing)"}
+                     </p>
+                  </div>
                 </div>
               )}
             </div>

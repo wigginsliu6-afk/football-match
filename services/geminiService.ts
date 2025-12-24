@@ -3,38 +3,58 @@ import { GoogleGenAI } from "@google/genai";
 import { Match, SearchResult } from "../types";
 
 export const fetchMatchesWithGemini = async (teams: string[]): Promise<SearchResult> => {
-  // --- Runtime Polyfill for Browser Environment ---
-  // The @google/genai SDK requires process.env.API_KEY.
-  // In a Vite environment, we need to bridge import.meta.env to process.env.
+  // --- Robust API Key Retrieval ---
+  let apiKey = "";
+
+  // 1. Try retrieving from Vite's import.meta.env (Standard for Vite apps)
   try {
     // @ts-ignore
-    if (typeof window !== "undefined" && !window.process) {
+    if (typeof import.meta !== "undefined" && import.meta.env) {
       // @ts-ignore
-      window.process = { env: {} };
-    }
-    
-    // Check if the global process.env.API_KEY is missing but available in Vite env
-    // @ts-ignore
-    if ((!process.env.API_KEY || process.env.API_KEY === undefined) && typeof import.meta !== "undefined" && import.meta.env) {
-      // @ts-ignore
-      const viteKey = import.meta.env.VITE_API_KEY;
-      if (viteKey) {
-        // @ts-ignore
-        process.env.API_KEY = viteKey;
-      }
+      apiKey = import.meta.env.VITE_API_KEY || import.meta.env.API_KEY || "";
     }
   } catch (e) {
-    console.warn("Env polyfill warning:", e);
+    console.warn("Error reading import.meta.env", e);
   }
-  // ------------------------------------------------
 
-  // Use process.env.API_KEY directly as per guidelines.
-  const apiKey = process.env.API_KEY;
+  // 2. Try retrieving from global process.env (Node.js or polyfilled environments)
+  if (!apiKey) {
+    try {
+      // @ts-ignore
+      if (typeof process !== "undefined" && process.env) {
+        // @ts-ignore
+        apiKey = process.env.API_KEY || process.env.VITE_API_KEY;
+      } else if (typeof window !== "undefined") {
+        // @ts-ignore
+        apiKey = window.process?.env?.API_KEY || window.process?.env?.VITE_API_KEY;
+      }
+    } catch (e) {
+      console.warn("Error reading process.env", e);
+    }
+  }
+
+  // 3. Polyfill process.env.API_KEY for SDK compliance (if SDK checks it internally or for consistency)
+  try {
+    // @ts-ignore
+    if (typeof process === "undefined") {
+      // @ts-ignore
+      window.process = { env: { API_KEY: apiKey } };
+    } else {
+      // @ts-ignore
+      if (!process.env) { process.env = {}; }
+      // @ts-ignore
+      process.env.API_KEY = apiKey;
+    }
+  } catch (e) {
+    // Ignore polyfill errors
+  }
 
   if (!apiKey) {
-    throw new Error("API Key 未找到。请在 Vercel 环境变量中设置 'VITE_API_KEY' (必须以 VITE_ 开头)。");
+    // 抛出带有特定前缀的错误，以便前端捕获并显示帮助指引
+    throw new Error("[Config Error] 未检测到 API Key。请在 Vercel 环境变量中设置 'VITE_API_KEY'。");
   }
 
+  // Use the retrieved apiKey
   const ai = new GoogleGenAI({ apiKey: apiKey });
   const teamsStr = teams.join(", ");
   
