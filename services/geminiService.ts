@@ -1,19 +1,12 @@
-
-import { GoogleGenAI, Type } from "@google/genai";
+import { GoogleGenAI } from "@google/genai";
 import { Match, SearchResult } from "../types";
 
 export const fetchMatchesWithGemini = async (teams: string[]): Promise<SearchResult> => {
-  // 尝试安全获取 API Key。如果在浏览器中直接运行且未配置 define 插件，直接访问 process 可能报错。
-  let apiKey: string | undefined;
-  try {
-    apiKey = process.env.API_KEY;
-  } catch (e) {
-    console.error("Error accessing process.env.API_KEY. Ensure your environment supports it.", e);
-    throw new Error("无法读取 API_KEY。如果您在浏览器环境，请确保构建工具已注入环境变量 process.env.API_KEY。");
-  }
+  // Use process.env.API_KEY directly as per guidelines.
+  const apiKey = process.env.API_KEY;
 
   if (!apiKey) {
-    throw new Error("API Key 未配置。请在 Vercel 项目设置中添加环境变量 API_KEY。");
+    throw new Error("无法读取 API Key。请确保环境变量 'API_KEY' (或 'VITE_API_KEY' 并通过配置暴露) 已正确配置。");
   }
 
   const ai = new GoogleGenAI({ apiKey: apiKey });

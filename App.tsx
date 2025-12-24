@@ -27,9 +27,9 @@ const App: React.FC = () => {
       setData(result);
     } catch (err: any) {
       console.error("Search failed:", err);
-      // 显示具体的错误信息，帮助用户排查（如 API Key 缺失、401 错误等）
+      // 显示具体的错误信息，帮助用户排查
       const errorMessage = err.message || JSON.stringify(err) || "未知错误";
-      setError(`获取赛程失败: ${errorMessage}`);
+      setError(errorMessage);
     } finally {
       setIsLoading(false);
     }
@@ -143,15 +143,24 @@ const App: React.FC = () => {
         {/* Right Column: Results */}
         <div className="lg:col-span-2 space-y-8">
           {error && (
-            <div className="bg-red-50 border border-red-100 text-red-600 p-4 rounded-xl flex flex-col gap-2">
-              <div className="flex items-center gap-3 font-bold">
-                <i className="fas fa-exclamation-circle text-xl"></i>
-                <span>出错了</span>
+            <div className="bg-red-50 border border-red-100 text-red-600 p-4 rounded-xl flex flex-col gap-2 shadow-sm animate-fade-in">
+              <div className="flex items-center gap-3 font-bold text-lg">
+                <i className="fas fa-exclamation-triangle"></i>
+                <span>配置错误</span>
               </div>
               <p className="text-sm opacity-90 break-all pl-8">{error}</p>
-              <p className="text-xs text-red-400 pl-8 mt-1">
-                * 请确保已在部署平台 (Vercel) 配置了有效的 <code>API_KEY</code> 环境变量。
-              </p>
+              
+              {error.includes("API Key") && (
+                <div className="mt-2 pl-8 text-xs text-slate-600 bg-red-100/50 p-2 rounded">
+                  <p className="font-bold mb-1">如何解决：</p>
+                  <ol className="list-decimal pl-4 space-y-1">
+                    <li>进入 Vercel 项目控制台 -> Settings -> Environment Variables</li>
+                    <li>添加 Key: <code className="bg-white px-1 rounded border">VITE_API_KEY</code></li>
+                    <li>添加 Value: 你的 Gemini API 密钥</li>
+                    <li>保存并重新部署 (Redeploy) 项目</li>
+                  </ol>
+                </div>
+              )}
             </div>
           )}
 
