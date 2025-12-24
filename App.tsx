@@ -154,9 +154,19 @@ const App: React.FC = () => {
                 <div className="mt-2 pl-8 text-xs text-slate-600 bg-red-100/50 p-2 rounded">
                   <p className="font-bold mb-1">如何解决：</p>
                   <ol className="list-decimal pl-4 space-y-1">
+                    <li className="mb-1">
+                      <a 
+                        href="https://aistudio.google.com/app/apikey" 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        className="text-blue-600 hover:text-blue-800 underline font-semibold"
+                      >
+                        点击此处获取免费 Gemini API Key
+                      </a>
+                    </li>
                     <li>进入 Vercel 项目控制台 -> Settings -> Environment Variables</li>
                     <li>添加 Key: <code className="bg-white px-1 rounded border">VITE_API_KEY</code></li>
-                    <li>添加 Value: 你的 Gemini API 密钥</li>
+                    <li>添加 Value: 粘贴您刚获取的密钥</li>
                     <li>保存后，回到 Deployments 页面点击 <strong>Redeploy</strong> (重新部署)</li>
                   </ol>
                 </div>
