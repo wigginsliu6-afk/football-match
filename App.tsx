@@ -157,7 +157,7 @@ const App: React.FC = () => {
                     <li>进入 Vercel 项目控制台 -> Settings -> Environment Variables</li>
                     <li>添加 Key: <code className="bg-white px-1 rounded border">VITE_API_KEY</code></li>
                     <li>添加 Value: 你的 Gemini API 密钥</li>
-                    <li>保存并重新部署 (Redeploy) 项目</li>
+                    <li>保存后，回到 Deployments 页面点击 <strong>Redeploy</strong> (重新部署)</li>
                   </ol>
                 </div>
               )}
