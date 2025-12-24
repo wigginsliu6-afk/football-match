@@ -150,7 +150,7 @@ const App: React.FC = () => {
               </div>
               <p className="text-sm opacity-90 break-all pl-8">{error}</p>
               
-              {error.includes("API Key") && (
+              {(error.includes("API Key") || error.includes("VITE_API_KEY")) && (
                 <div className="mt-2 pl-8 text-xs text-slate-600 bg-red-100/50 p-2 rounded">
                   <p className="font-bold mb-1">如何解决：</p>
                   <ol className="list-decimal pl-4 space-y-1">
@@ -161,13 +161,13 @@ const App: React.FC = () => {
                         rel="noopener noreferrer"
                         className="text-blue-600 hover:text-blue-800 underline font-semibold"
                       >
-                        点击此处获取免费 Gemini API Key
+                        获取免费 Gemini API Key
                       </a>
                     </li>
-                    <li>进入 Vercel 项目控制台 &rarr; Settings &rarr; Environment Variables</li>
-                    <li>添加 Key: <code className="bg-white px-1 rounded border">VITE_API_KEY</code></li>
-                    <li>添加 Value: 粘贴您刚获取的密钥</li>
-                    <li>保存后，回到 Deployments 页面点击 <strong>Redeploy</strong> (重新部署)</li>
+                    <li>在 Vercel 控制台: Settings &rarr; Environment Variables</li>
+                    <li>Key: <code className="bg-white px-1 rounded border font-bold text-red-600">VITE_API_KEY</code> <span className="text-red-500">(注意：必须加 VITE_ 前缀)</span></li>
+                    <li>Value: 粘贴您的密钥</li>
+                    <li>保存后，去 Deployments 点击 <strong>Redeploy</strong> (重新部署)</li>
                   </ol>
                 </div>
               )}

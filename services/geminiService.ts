@@ -1,12 +1,38 @@
+
 import { GoogleGenAI } from "@google/genai";
 import { Match, SearchResult } from "../types";
 
 export const fetchMatchesWithGemini = async (teams: string[]): Promise<SearchResult> => {
+  // --- Runtime Polyfill for Browser Environment ---
+  // The @google/genai SDK requires process.env.API_KEY.
+  // In a Vite environment, we need to bridge import.meta.env to process.env.
+  try {
+    // @ts-ignore
+    if (typeof window !== "undefined" && !window.process) {
+      // @ts-ignore
+      window.process = { env: {} };
+    }
+    
+    // Check if the global process.env.API_KEY is missing but available in Vite env
+    // @ts-ignore
+    if ((!process.env.API_KEY || process.env.API_KEY === undefined) && typeof import.meta !== "undefined" && import.meta.env) {
+      // @ts-ignore
+      const viteKey = import.meta.env.VITE_API_KEY;
+      if (viteKey) {
+        // @ts-ignore
+        process.env.API_KEY = viteKey;
+      }
+    }
+  } catch (e) {
+    console.warn("Env polyfill warning:", e);
+  }
+  // ------------------------------------------------
+
   // Use process.env.API_KEY directly as per guidelines.
   const apiKey = process.env.API_KEY;
 
   if (!apiKey) {
-    throw new Error("无法读取 API Key。请确保环境变量 'API_KEY' (或 'VITE_API_KEY' 并通过配置暴露) 已正确配置。");
+    throw new Error("API Key 未找到。请在 Vercel 环境变量中设置 'VITE_API_KEY' (必须以 VITE_ 开头)。");
   }
 
   const ai = new GoogleGenAI({ apiKey: apiKey });
