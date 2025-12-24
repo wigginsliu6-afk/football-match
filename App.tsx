@@ -25,8 +25,11 @@ const App: React.FC = () => {
     try {
       const result = await fetchMatchesWithGemini(newPrefs.teams);
       setData(result);
-    } catch (err) {
-      setError("无法获取赛程，请检查网络连接或稍后再试。");
+    } catch (err: any) {
+      console.error("Search failed:", err);
+      // 显示具体的错误信息，帮助用户排查（如 API Key 缺失、401 错误等）
+      const errorMessage = err.message || JSON.stringify(err) || "未知错误";
+      setError(`获取赛程失败: ${errorMessage}`);
     } finally {
       setIsLoading(false);
     }
@@ -140,9 +143,15 @@ const App: React.FC = () => {
         {/* Right Column: Results */}
         <div className="lg:col-span-2 space-y-8">
           {error && (
-            <div className="bg-red-50 border border-red-100 text-red-600 p-4 rounded-xl flex items-center gap-3">
-              <i className="fas fa-exclamation-circle text-xl"></i>
-              <p>{error}</p>
+            <div className="bg-red-50 border border-red-100 text-red-600 p-4 rounded-xl flex flex-col gap-2">
+              <div className="flex items-center gap-3 font-bold">
+                <i className="fas fa-exclamation-circle text-xl"></i>
+                <span>出错了</span>
+              </div>
+              <p className="text-sm opacity-90 break-all pl-8">{error}</p>
+              <p className="text-xs text-red-400 pl-8 mt-1">
+                * 请确保已在部署平台 (Vercel) 配置了有效的 <code>API_KEY</code> 环境变量。
+              </p>
             </div>
           )}
 
