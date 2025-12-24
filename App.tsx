@@ -27,8 +27,20 @@ const App: React.FC = () => {
       setData(result);
     } catch (err: any) {
       console.error("Search failed:", err);
-      // 简单的错误提示
-      const errorMessage = err.message || "请求失败，请检查网络或 API Key 设置";
+      
+      let errorMessage = err.message || "请求失败，请检查网络或 API Key 设置";
+
+      // 特定错误处理：配额超限 (429)
+      const errString = JSON.stringify(err);
+      if (
+        errorMessage.includes("429") || 
+        errorMessage.includes("RESOURCE_EXHAUSTED") || 
+        errString.includes("RESOURCE_EXHAUSTED") ||
+        err.status === 429
+      ) {
+        errorMessage = "⚠️ API 调用配额已耗尽 (Error 429)。\n\nGemini API 免费版有请求速率限制（通常每分钟限制请求次数）。\n请稍等 1-2 分钟后再试，或者检查您的 API Key 配额。";
+      }
+
       setError(errorMessage);
     } finally {
       setIsLoading(false);
@@ -145,9 +157,9 @@ const App: React.FC = () => {
             <div className="bg-red-50 border border-red-100 text-red-600 p-4 rounded-xl flex flex-col gap-2 shadow-sm animate-fade-in">
               <div className="flex items-center gap-3 font-bold text-lg">
                 <i className="fas fa-exclamation-triangle"></i>
-                <span>出错啦</span>
+                <span>需要注意</span>
               </div>
-              <p className="text-sm opacity-90 break-all pl-8">{error}</p>
+              <p className="text-sm opacity-90 break-all pl-8 whitespace-pre-wrap">{error}</p>
             </div>
           )}
 
