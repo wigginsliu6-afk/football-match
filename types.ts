@@ -19,3 +19,9 @@ export interface UserPreferences {
   startHour: number; // 0-23
   endHour: number;   // 0-23
 }
+
+export interface ApiSettings {
+  apiKey: string;
+  baseUrl: string;
+  useSearchGrounding: boolean;
+}

@@ -1,29 +1,11 @@
+
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import App from './App';
 
-// --- Environment Variable Polyfill ---
-// 确保在浏览器环境中 process.env.API_KEY 可用
-try {
-  // 如果 process 不存在，创建一个空对象
-  if (typeof window !== 'undefined' && typeof (window as any).process === 'undefined') {
-    (window as any).process = { env: {} };
-  }
-
-  // 尝试从 Vite 的 import.meta.env 获取 key 并注入到 process.env
-  // @ts-ignore
-  if (typeof import.meta !== 'undefined' && import.meta.env) {
-    // @ts-ignore
-    const viteKey = import.meta.env.VITE_API_KEY || import.meta.env.API_KEY;
-    if (viteKey) {
-      // @ts-ignore
-      (window as any).process.env.API_KEY = viteKey;
-    }
-  }
-} catch (e) {
-  console.warn("Environment polyfill failed:", e);
-}
-// -------------------------------------
+// Fix: Removed manual API key injection logic as process.env.API_KEY is assumed 
+// to be pre-configured and accessible in the execution context.
+// This also resolves the TypeScript error: Property 'env' does not exist on type 'ImportMeta'.
 
 const rootElement = document.getElementById('root');
 if (!rootElement) {
